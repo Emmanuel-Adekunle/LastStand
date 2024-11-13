@@ -3,6 +3,7 @@ package com.example.laststand;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -13,8 +14,8 @@ import androidx.core.content.ContextCompat;
  * Game helps to manage all objects in the game and is responsible for updating all States and render all objects to screen
  */
 class Game extends SurfaceView implements SurfaceHolder.Callback {
+    private final player player;
     private GameLoop gameLoop;
-    private Context context;
 
     public Game(Context context) {
         super(context);
@@ -22,24 +23,40 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
         SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
 
-        this.context = context;
         gameLoop = new GameLoop(this, surfaceHolder); // Initialize gameLoop
+        //Initialize Player
+        player = new player(getContext(), 2*470, 470, 30);
+
         setFocusable(true);
     }
 
     @Override
-    public void surfaceCreated(@NonNull SurfaceHolder holder) {
+    public boolean onTouchEvent(MotionEvent event) {
+        // Handles touch event actions
+        switch(event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                player.setPosition((double) event.getX(), (double) event.getY());
+                return true;
+                case MotionEvent.ACTION_MOVE:
+                    player.setPosition((double) event.getX(), (double) event.getY());
+                    return true;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public void surfaceCreated( SurfaceHolder holder) {
         // Code to execute when the surface is created
     gameLoop.startLoop();
     }
 
     @Override
-    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
+    public void surfaceChanged( SurfaceHolder holder, int format, int width, int height) {
         // Code to handle surface changes
     }
 
     @Override
-    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+    public void surfaceDestroyed( SurfaceHolder holder) {
         // Code to handle surface destruction
     }
 
@@ -48,6 +65,8 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
         super.draw(canvas);
         drawUPS(canvas);
         drawFPS(canvas);
+
+        player.draw(canvas);
     }
 
     public void drawUPS(Canvas canvas) {
@@ -75,5 +94,7 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update() {
+        //update game state
+        player.update();
     }
 }
